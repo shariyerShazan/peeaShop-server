@@ -5,6 +5,15 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import connectDB from "./db/connectDB.js"
 
+
+// Uncaught Exception handle
+process.on("uncaughtException", (err) => {
+    console.log(`Error: ${err.message}`);
+    console.log(`Server is shutting down due to uncaught exception`);
+    process.exit(1);
+});
+
+
 // middlewares
 const app = express()
 app.use(express.json()) 
@@ -39,12 +48,30 @@ app.get("/" , (_ , res)=>{
 
 // 
 const PORT = process.env.PORT || 6002
+
+let server ;
 const runServer = async ()=>{
     try {
        await connectDB()
-        app.listen(PORT , ()=>{console.log(`Your server is running at http://localhost:${PORT}`)})
+        server = app.listen(PORT , ()=>{console.log(`Your server is running at http://localhost:${PORT}`)})
     } catch (error) {
         console.log(error)
     }
 }
 runServer()
+
+
+// Unhandled promise rejection handle
+process.on("unhandledRejection", (err) => {
+    console.log(`Error: ${err.message}`);
+    console.log(`Server is shutting down due to unhandled promise rejection`);
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    } else {
+        process.exit(1);
+    }
+});
+
+process.on("uncaughtException")
