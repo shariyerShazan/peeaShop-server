@@ -3,6 +3,7 @@ dotenv.config()
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import connectDB from "./db/connectDB.js"
 
 // middlewares
 const app = express()
@@ -31,10 +32,16 @@ app.get("/" , (_ , res)=>{
 })
 
 // api for app
-const PORT = process.env.PORT || 6002
 
+
+
+
+
+// 
+const PORT = process.env.PORT || 6002
 const runServer = async ()=>{
     try {
+       await connectDB()
         app.listen(PORT , ()=>{console.log(`Your server is running at http://localhost:${PORT}`)})
     } catch (error) {
         console.log(error)
