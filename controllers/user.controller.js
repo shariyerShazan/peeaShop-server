@@ -122,4 +122,74 @@ export const logout = async (req , res) =>{
 
 
 
-
+export const editUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { fullName, oldPassword, newPassword } = req.body;
+    //   const pictureFile = req.file;
+  
+      const user = await User.findById(userId).select("+password");
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+          success: false,
+        });
+      }
+  
+      if (fullName) user.fullName = fullName;
+  
+    //   if (pictureFile) {
+    //     user.profilePicture = pictureFile.path; 
+    //   }
+  
+      if (oldPassword && newPassword) {
+        const canChangePass = await bcrypt.compare(oldPassword, user.password);
+        if (!canChangePass) {
+          return res.status(400).json({
+            message: "Old password is incorrect",
+            success: false,
+          });
+        }
+  
+        if (newPassword.length < 6) {
+          return res.status(400).json({
+            message: "Password must be at least 6 characters",
+            success: false,
+          });
+        }
+        if (!/[a-zA-Z]/.test(newPassword)) {
+          return res.status(400).json({
+            message: "Password must contain a letter",
+            success: false,
+          });
+        }
+        if (!/[\d]/.test(newPassword)) {
+          return res.status(400).json({
+            message: "Password must contain a number",
+            success: false,
+          });
+        }
+  
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+      }
+  
+      await user.save();
+  
+      const { password, ...safeUser } = user.toObject();
+  
+      return res.status(200).json({
+        message: "User updated successfully",
+        success: true,
+        user: safeUser,
+      });
+  
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error!",
+        success: false,
+      });
+    }
+  };
+  
