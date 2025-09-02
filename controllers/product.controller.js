@@ -67,8 +67,29 @@ export const getAllProducts = async (req, res) => {
 };
 
 
-export const updateProduct = async (req, res) => {};
+export const updateProduct = async (req, res) => {
+     try {
+        const {productId} = req.params 
+        const { productName, description, price, productCategory, stock } = req.body;
+        const product = await Product.findById(productId);
+        if(!product){
+            return res.status(404).json({
+                message : "Product not found" ,
+                success: false
+            })
+        }
+        if(productName){product.productName = productName};
+        if(description){product.description = description} ;
+        if(price){product.price = price};
+        if(productCategory){product.productCategory = productCategory};
+        if(stock){product.stock = stock};
+        await product.save()
+     } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false,
+        });
+     }
+};
 
-export const deleteProduct = async (req, res) => {};
-
-export const getSingleProduct = async (req, res) => {};
