@@ -52,7 +52,7 @@ export const register = async  (req , res) =>{
      } catch (error) {
         console.log(error)
         return res.status(500).json({
-            message : "Server error!" ,
+            message : "Internal server error!" ,
             success: false
         })
      }
@@ -89,12 +89,31 @@ export const login = async (req , res) =>{
           } catch (error) {
             console.log(error)
             return res.status(500).json({
-                message : "Server error!" ,
+                message : "Internal server error!" ,
                 success: false
             })
           }
 }
 
 export const logout = async (req , res) =>{
+    try {
+        return res
+  .clearCookie("token", {
+    httpOnly: true,
+    secure: true,  
+    sameSite: "none",     
+  })
+  .status(200)
+  .json({
+    message: "User Logged out successfully",
+    success: true
+  });
 
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+           message : "Internal server error" ,
+           success: false
+        }) 
+    }
 }
