@@ -16,14 +16,8 @@ const userSchema = new mongoose.Schema({
         select: false
     } ,
     profilePicture: {
-            publicId: {
-                type: String ,
-                required : true 
-            } ,
-            url: {
-                type: String ,
-                required : true
-            }
+         type: String ,
+         required : true
     } ,
     admin: {
         type: Boolean ,
