@@ -93,3 +93,37 @@ export const updateProduct = async (req, res) => {
      }
 };
 
+export const deleteProduct = async (req, res) => {
+    try {
+        const {productId} = req.params 
+        if(!productId){
+            return res.status(400).json({
+                message : "Product id is required" ,
+                success: false
+            })
+        }
+        const product = await Product.findByIdAndDelete(productId)
+        return res.status(200).json({
+            message : "Product deleted",
+            success: true
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false,
+        });
+    }
+};
+
+export const getSingleProduct = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false,
+        });
+    }
+};
