@@ -71,7 +71,7 @@ export const updateProduct = async (req, res) => {
      try {
         const {productId} = req.params 
         const { productName, description, price, productCategory, stock } = req.body;
-        const product = await Product.findById(productId);
+        const product = await Product.findOne({_id: productId , createdBy: req.userId});
         if(!product){
             return res.status(404).json({
                 message : "Product not found" ,
@@ -104,7 +104,7 @@ export const deleteProduct = async (req, res) => {
        
         const product = await Product.findOneAndDelete({_id: productId , createdBy : req.userId})
         if(!product){
-            return res.status(400).json({
+            return res.status(404).json({
                 message : "Your can't delete this product",
                 success: false
             })
@@ -132,6 +132,12 @@ export const getSingleProduct = async (req, res) => {
             })
         }
         const product = await Product.findById(productId)
+        if(!product){
+            return res.status(400).json({
+                message : "Product not found" ,
+                success: false
+            })
+        }
         return res.status(200).json({
             message : "Product fetched successfully",
             product,
@@ -145,3 +151,27 @@ export const getSingleProduct = async (req, res) => {
         });
     }
 };
+
+
+export const getOwnProducts = async (req, res)=>{
+    try {
+        const products = await Product.find({createdBy: req.userId})
+        if(products.length === 0){
+            return res.status(404).json({
+                message : "You have no product yet" ,
+                success: false
+            })
+        }
+        return res.status(200).json({
+            message: "Your product here" ,
+            success: true ,
+            products
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false,
+        });
+    }
+}
