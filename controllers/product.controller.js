@@ -32,7 +32,40 @@ export const createProduct = async (req, res) => {
   }
 };
 
-export const getAllProducts = async (req, res) => {};
+
+export const getAllProducts = async (req, res) => {
+    try {
+        const {searchText , page , limit} = req.query ;
+        let query = {}
+        if(searchText){
+            query.$or = [
+                {productName : {$regex: searchText , $options: "i"}},
+                {description : {$regex: searchText , $options: "i"}},
+                {productCategory : {$regex: searchText , $options: "i"}}
+            ]
+        }
+        const pageNumber = parseInt(page) || 1 ;
+        const pageLimit = parseInt(limit) || 10 ;
+        const skip = (pageNumber - 1) * pageLimit;
+
+        const products = await Product.find(query).skip(skip).limit(pageNumber).sort({createdAt : -1});
+        const totalProduct = await Product.countDocuments(query)
+        return res.status(200).json({
+            message : "All product fetched" ,
+            products , 
+            page : pageNumber ,
+            limit : pageLimit ,
+            totalPages: Math.ceil(totalProduct / pageLimit)
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false,
+        });
+    }
+};
+
 
 export const updateProduct = async (req, res) => {};
 
