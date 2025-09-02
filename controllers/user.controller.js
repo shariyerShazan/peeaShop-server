@@ -1,5 +1,8 @@
+import dotenv from "dotenv"
+dotenv.config()
 import bcrypt from "bcryptjs"
 import { User } from "../models/user.model"
+import jwt from "jsonwebtoken"
 
 export const register = async  (req , res) =>{
      try {
@@ -9,6 +12,13 @@ export const register = async  (req , res) =>{
               message : "Something is missing" ,
               success: false
           })
+        }
+        const user = await User.findOne({email: email})
+        if(user){
+            return res.status(400).json({
+                message : "User already exist with this email!" ,
+                success: false
+            })
         }
         if(password.length < 6){
           return res.status(400).json({
@@ -50,9 +60,38 @@ export const register = async  (req , res) =>{
 
 export const login = async (req , res) =>{
           try {
-            
+               const {email , password}= req.body 
+               if(!email || !password){
+                return res.status(400).json({
+                    message : "Something is missing" ,
+                    success: false
+                })
+               }
+               const user = await User.findOne({email: email}).select("+password")
+               if(!user){
+                return res.status(400).json({
+                    message : "User not exist with this email" ,
+                    success: false
+                })
+               }
+               const validPassword = await bcrypt.compare(password , user.password)
+               if(!validPassword){
+                    return res.status(400).json({
+                        message : "Invalid password" ,
+                        success: false
+                    })
+               }
+               const token =  jwt.sign({userId : user._id} , process.env.JWT_SECRET_KEY , {expiresIn: "3d"})
+               return res.cookie("token" , token , {httpOnly: true , sameSite: "strict" , maxAge: 3*24*60*60*1000 ,}).status(200).json({
+                message: `Welcome back ${user.fullName}` ,
+                success: true
+               })
           } catch (error) {
-            
+            console.log(error)
+            return res.status(500).json({
+                message : "Server error!" ,
+                success: false
+            })
           }
 }
 
