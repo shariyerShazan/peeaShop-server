@@ -60,7 +60,7 @@ export const addReview = async (req, res) => {
 };
 
 
-const getReviewByProduct = async (req , res)=>{
+export const getReviewByProduct = async (req , res)=>{
     try {
         const {productId} = req.params
         const reviews = await Review.find({ product: productId })
@@ -75,6 +75,33 @@ const getReviewByProduct = async (req , res)=>{
             success: true ,
             reviews
         })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false
+        });
+    }
+}
+
+
+export const deleteReview = async (req, res)=>{
+    try {
+        const {reviewId} = req.params
+        const review = await Review.findOneAndDelete({
+            reviewedBy: req.userId ,
+            _id : reviewId
+        })
+        if(!review){
+            return res.stats(200).json({
+                message : "Your can't deleted this review" ,
+                success: false
+            })
+        }
+            return res.stats(200).json({
+                message : "Review deleted" ,
+                success: true
+            })
     } catch (error) {
         console.log(error);
         return res.status(500).json({
