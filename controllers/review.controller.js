@@ -65,12 +65,12 @@ export const getReviewByProduct = async (req , res)=>{
         const {productId} = req.params
         const reviews = await Review.find({ product: productId })
         if(!reviews){
-            return res.stats(404).json({
+            return res.status(404).json({
                 message : "Review not found" ,
                 success : false
             })
         }
-        return res.stats(200).json({
+        return res.status(200).json({
             message : "Reviews here" ,
             success: true ,
             reviews
@@ -85,28 +85,54 @@ export const getReviewByProduct = async (req , res)=>{
 }
 
 
-export const deleteReview = async (req, res)=>{
+export const deleteReview = async (req, res) => {
     try {
-        const {reviewId} = req.params
-        const review = await Review.findOneAndDelete({
-            reviewedBy: req.userId ,
-            _id : reviewId
-        })
-        if(!review){
-            return res.stats(200).json({
-                message : "Your can't deleted this review" ,
-                success: false
-            })
-        }
-            return res.stats(200).json({
-                message : "Review deleted" ,
-                success: true
-            })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-          message: "Internal server error!",
+      const { reviewId } = req.params;
+  
+      const review = await Review.findOneAndDelete({
+        reviewedBy: req.userId,
+        _id: reviewId
+      });
+  
+      if (!review) {
+        return res.status(404).json({
+          message: "You can't delete this review",
           success: false
         });
+      }
+  
+      const productId = review.product;
+  
+      const totalReview = await Review.countDocuments({ product: productId });
+  
+      const stats = await Review.aggregate([
+        { $match: { product: review.product } },
+        {
+          $group: {
+            _id: "$product",
+            avgRating: { $avg: "$rating" }
+          }
+        }
+      ]);
+  
+      const avgRating = stats.length > 0 ? stats[0].avgRating : 0;
+  
+      await Product.findByIdAndUpdate(productId, {
+        numberOfReviews: totalReview,
+        rating: avgRating
+      });
+  
+      return res.status(200).json({
+        message: "Review deleted",
+        success: true
+      });
+  
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error!",
+        success: false
+      });
     }
-}
+  };
+  

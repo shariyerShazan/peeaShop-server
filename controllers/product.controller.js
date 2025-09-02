@@ -96,13 +96,14 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const {productId} = req.params 
-        if(!productId){
+       
+        const product = await Product.findOneAndDelete({_id: productId , createdBy : req.userId})
+        if(!product){
             return res.status(400).json({
-                message : "Product id is required" ,
+                message : "Your can't delete this product",
                 success: false
             })
         }
-        const product = await Product.findByIdAndDelete(productId)
         return res.status(200).json({
             message : "Product deleted",
             success: true
