@@ -15,14 +15,10 @@ const productSchema = new mongoose.Schema({
         type: Number ,
         required: true 
        },
-       allRating: {
-        type: Number ,
-        default: 0
-       } ,
         productImage: [
                 {
                     imageNo: {
-                        type: number ,
+                        type: Number ,
                         required: true 
                     },
                     url: {
@@ -40,9 +36,13 @@ const productSchema = new mongoose.Schema({
                 required: true
             },
             numberOfReviews: {
-                type: String ,
+                type: Number ,
                 required: true
             },
+            rating: {
+                type: Number ,
+                default: 0
+               },
             createdBy : {
                 type: mongoose.Schema.Types.ObjectId ,
                 ref: "User" ,
