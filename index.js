@@ -6,7 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/connectDB.js";
 import userRoutes from "./routes/user.route.js"
-
+import productRoutes from "./routes/product.route.js"
 
 // Uncaught Exception handle
 process.on("uncaughtException", (err) => {
@@ -39,6 +39,7 @@ app.get("/", (_, res) => {
 });
 // api here
 app.use("/api/v1/users" , userRoutes)
+app.use("/api/v1/products" , productRoutes)
 
 
 
