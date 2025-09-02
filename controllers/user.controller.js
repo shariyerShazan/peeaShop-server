@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 dotenv.config()
 import bcrypt from "bcryptjs"
-import { User } from "../models/user.model"
+import { User } from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 
 export const register = async  (req , res) =>{
@@ -124,11 +124,10 @@ export const logout = async (req , res) =>{
 
 export const editUser = async (req, res) => {
     try {
-      const { userId } = req.params;
       const { fullName, oldPassword, newPassword } = req.body;
     //   const pictureFile = req.file;
   
-      const user = await User.findById(userId).select("+password");
+      const user = await User.findById(req.userId).select("+password");
       if (!user) {
         return res.status(404).json({
           message: "User not found",
