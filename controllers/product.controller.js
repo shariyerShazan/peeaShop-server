@@ -48,7 +48,7 @@ export const getAllProducts = async (req, res) => {
         const pageLimit = parseInt(limit) || 10 ;
         const skip = (pageNumber - 1) * pageLimit;
 
-        const products = await Product.find(query).skip(skip).limit(pageNumber).sort({createdAt : -1});
+        const products = await Product.find(query).skip(skip).limit(pageLimit).sort({createdAt : -1});
         const totalProduct = await Product.countDocuments(query)
         return res.status(200).json({
             message : "All product fetched" ,
@@ -84,6 +84,11 @@ export const updateProduct = async (req, res) => {
         if(productCategory){product.productCategory = productCategory};
         if(stock){product.stock = stock};
         await product.save()
+        return res.status(200).json({
+            message: "Product updated successfully",
+            success: true,
+            product
+          });
      } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -128,7 +133,7 @@ export const getSingleProduct = async (req, res) => {
         }
         const product = await Product.findById(productId)
         return res.status(200).json({
-            message : "Product deleted",
+            message : "Product fetched successfully",
             product,
             success: true
         })
