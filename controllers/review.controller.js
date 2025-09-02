@@ -60,3 +60,26 @@ export const addReview = async (req, res) => {
 };
 
 
+const getReviewByProduct = async (req , res)=>{
+    try {
+        const {productId} = req.params
+        const reviews = await Review.find({ product: productId })
+        if(!reviews){
+            return res.stats(404).json({
+                message : "Review not found" ,
+                success : false
+            })
+        }
+        return res.stats(200).json({
+            message : "Reviews here" ,
+            success: true ,
+            reviews
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error!",
+          success: false
+        });
+    }
+}
